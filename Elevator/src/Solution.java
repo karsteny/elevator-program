@@ -4,7 +4,7 @@ public class Solution {
 	public static void main(String[] args) {
 		ElevatorSystem es = new ElevatorSystem(1,5);
 		es.requestElevator(3);
-		es.
+		System.out.println(es);
 	}
 }
 
@@ -23,11 +23,23 @@ class ElevatorSystem{
 	
 	void requestElevator(int floor) {
 		if(floor >= 1 && floor <= numberOfFloors) {
-			
+			int bestDistance = -1;
+			int bestElevatorIndex = -1;
+			for(int i = 0; i < elevators.length; i++) {
+				int currentDistance = elevators[i].getDistanceToFloor(floor);
+				
+				if(currentDistance < bestDistance) {
+					
+				}
+			}
 		}	
 	}
 	
-	
+	public String toString() {
+		String r = "Elv#|Flr.|Dir";
+		
+		return r;
+	}
 }
 
 class Elevator{
@@ -48,7 +60,7 @@ class Elevator{
 	}
 	
 	/**
-	 * Returns the number of floors the elevator is away from the given floor, or -1 if the elevator is traveling away. 
+	 *  
 	 * @param floor The floor number to get the distance for.
 	 * @return The number of floors the elevator is from the given floor, -1 if the elevator is going the wrong way for the floor.
 	 */
