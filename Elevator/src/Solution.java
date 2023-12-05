@@ -2,15 +2,15 @@ import java.util.ArrayList;
 
 public class Solution {
 	public static void main(String[] args) {
-		ElevatorSystem es = new ElevatorSystem(1,5);
-		es.requestElevator(3);
-		System.out.println(es);
+//		ElevatorSystem es = new ElevatorSystem(9,50);
+//		es.requestElevator(23);
+//		es.requestElevator(3);
+//		System.out.println(es);
 	}
 }
 
 class ElevatorSystem{
 	private Elevator[] elevators;
-	
 	private final int numberOfFloors;
 	
 	ElevatorSystem(int elevatorCount, int numberOfFloors){
@@ -21,23 +21,43 @@ class ElevatorSystem{
 		this.numberOfFloors = numberOfFloors; 
 	}
 	
-	void requestElevator(int floor) {
+	int requestElevator(int floor) {
 		if(floor >= 1 && floor <= numberOfFloors) {
-			int bestDistance = -1;
-			int bestElevatorIndex = -1;
+			int bestDistance = numberOfFloors;
+			int bestElevatorIndex = 0;
 			for(int i = 0; i < elevators.length; i++) {
 				int currentDistance = elevators[i].getDistanceToFloor(floor);
-				
-				if(currentDistance < bestDistance) {
-					
+				if(currentDistance < bestDistance && currentDistance != -1) {
+					bestDistance = currentDistance;
+					bestElevatorIndex = i;
 				}
 			}
-		}	
+			elevators[bestElevatorIndex].requestFloor(floor);
+			System.out.println("Elevator #"+(bestElevatorIndex)+" for Floor "+floor);
+			return bestElevatorIndex;
+		}else {
+			System.out.println("Invalid Request");
+			return -1;
+		}
 	}
 	
+	void setElevatorPositionAndDirection(int elevator, int position, int direction) {
+		if(elevator < 0 || elevator > elevators.length-1 || position < 1 || position > numberOfFloors) {
+			throw new IllegalArgumentException();
+		}
+		elevators[elevator].setPositionAndDirection(position, direction);
+	}
+	
+	int getElevatorPosition(int elevator) { return elevators[elevator].getPosition(); }
+	int getElevatorDirection(int elevator) { return elevators[elevator].getDirection(); }
+	
 	public String toString() {
-		String r = "Elv#|Flr.|Dir";
-		
+		String r = "Elv#: Flr, Dir";
+		for(int i=0; i<elevators.length; i++) {
+			r+="\n";
+			r+=(i+1)+": "+elevators[i].toString();
+			
+		}
 		return r;
 	}
 }
@@ -54,10 +74,27 @@ class Elevator{
 	}
 	
 	void requestFloor(int floor) {
-		if(!requests.contains(floor)) {
+		//Don't add the floor if the elevator is already at it
+		//or if the request queue already contains it
+		if(currentFloor != floor && !requests.contains(floor)) {
 			requests.add(floor);
+			if(direction == 0) {
+				//If the elevator is idle, set the direction
+				direction = requests.get(0)-currentFloor >= 1 ? 1 : -1;
+				
+			}
 		}
 	}
+	
+
+	void setPositionAndDirection(int position, int direction) {
+		currentFloor = position;
+		this.direction = direction;
+	}
+	
+	int getPosition() { return currentFloor; }
+	
+	int getDirection() { return direction; }
 	
 	/**
 	 *  
@@ -78,5 +115,9 @@ class Elevator{
 			//Return 0 if the elevator is stopped or -1 if it is moving (as it will be "too late" if it is moving)
 			return direction == 0 ? 0 : -1;
 		}
+	}
+	
+	public String toString() {
+		return currentFloor + ", " + direction;
 	}
 }
