@@ -66,4 +66,18 @@ class SolutionTest {
 		assertEquals(1, es.getElevatorDirection(1));
 		assertEquals(1, es.getElevatorDirection(2));
 	}
+	
+	@Test
+	void test4() {
+		es = new ElevatorSystem(1,10);
+		es.setElevatorPositionAndDirection(0, 4, 1);
+		
+		es.requestElevatorInside(0, 2);
+		es.requestElevatorInside(0, 9);
+		es.requestElevatorInside(0, 6);
+		es.requestElevatorInside(0, 3);
+		
+		
+		assertEquals(6, es.getElevatorNextStop(0));
+	}
 }

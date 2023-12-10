@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class Solution {
 	public static void main(String[] args) {
@@ -21,6 +24,7 @@ class ElevatorSystem{
 		this.numberOfFloors = numberOfFloors; 
 	}
 	
+	//Pressing the button outside the elevator
 	int requestElevator(int floor) {
 		if(floor >= 1 && floor <= numberOfFloors) {
 			int bestDistance = numberOfFloors;
@@ -41,6 +45,11 @@ class ElevatorSystem{
 		}
 	}
 	
+	//Pressing the button inside the elevator
+	void requestElevatorInside(int elevator, int floor) {
+		elevators[elevator].requestFloor(floor);
+	}
+	
 	void setElevatorPositionAndDirection(int elevator, int position, int direction) {
 		if(elevator < 0 || elevator > elevators.length-1 || position < 1 || position > numberOfFloors) {
 			throw new IllegalArgumentException();
@@ -48,8 +57,10 @@ class ElevatorSystem{
 		elevators[elevator].setPositionAndDirection(position, direction);
 	}
 	
+	
 	int getElevatorPosition(int elevator) { return elevators[elevator].getPosition(); }
 	int getElevatorDirection(int elevator) { return elevators[elevator].getDirection(); }
+	int getElevatorNextStop(int elevator) { return elevators[elevator].move(); }
 	
 	public String toString() {
 		String r = "Elv#: Flr, Dir";
@@ -64,7 +75,7 @@ class ElevatorSystem{
 
 class Elevator{
 	private int currentFloor;
-	private ArrayList<Integer> requests;
+	private List<Integer> requests;
 	private int direction; 
 	
 	Elevator(){
@@ -86,6 +97,30 @@ class Elevator{
 		}
 	}
 	
+	
+	int move() {
+		if(requests.size() == 0) return -1; 
+		requests.sort((a,b) -> a-b);
+		System.out.println(requests);
+		int stopIndex = requests.size();
+		//Finds where to split the array in 2 for sorting
+		for(int i=0; i<requests.size(); i++) {
+			if(requests.get(i) > currentFloor) {
+				stopIndex = i; 
+				break;
+			}
+		}
+		List<Integer> tempLower = requests.subList(0, stopIndex);
+		tempLower.sort((a,b) -> b-a);
+		requests = requests.subList(stopIndex, requests.size());
+		if(direction == 1) {
+			requests.addAll(tempLower);
+		}else {
+			requests.addAll(0, tempLower);
+		}
+		System.out.println(requests);
+		return requests.get(0);
+	}
 
 	void setPositionAndDirection(int position, int direction) {
 		currentFloor = position;
@@ -119,5 +154,6 @@ class Elevator{
 	
 	public String toString() {
 		return currentFloor + ", " + direction;
+		
 	}
 }
