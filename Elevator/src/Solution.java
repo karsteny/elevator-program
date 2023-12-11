@@ -50,6 +50,14 @@ class ElevatorSystem{
 		elevators[elevator].requestFloor(floor);
 	}
 	
+	//Simulates 1 movement of each elevator
+	void moveElevators() {
+		for(Elevator e : elevators) {
+			int nextFloor = e.move();
+			e.setPositionAndDirection(nextFloor >= 0 ? nextFloor : e.getPosition(), e.getDirection());
+		}
+	}
+	
 	void setElevatorPositionAndDirection(int elevator, int position, int direction) {
 		if(elevator < 0 || elevator > elevators.length-1 || position < 1 || position > numberOfFloors) {
 			throw new IllegalArgumentException();
@@ -60,7 +68,7 @@ class ElevatorSystem{
 	
 	int getElevatorPosition(int elevator) { return elevators[elevator].getPosition(); }
 	int getElevatorDirection(int elevator) { return elevators[elevator].getDirection(); }
-	int getElevatorNextStop(int elevator) { return elevators[elevator].move(); }
+	int getElevatorNextStop(int elevator) { return elevators[elevator].getNextStop(); }
 	
 	public String toString() {
 		String r = "Elv#: Flr, Dir";
@@ -89,36 +97,44 @@ class Elevator{
 		//or if the request queue already contains it
 		if(currentFloor != floor && !requests.contains(floor)) {
 			requests.add(floor);
+			//Sorts the array in a "queue" sense
+			//Ex: The queue has floors 1, 2, 5, 7 and the elevator is on floor 3 going up.
+			//The queue will be 5, 7, (change direction) 2, 1
+			requests.sort((a,b) -> a-b);
+//			System.out.println(requests);
+			int stopIndex = requests.size();
+			//Finds where to split the array in 2 for sorting
+			for(int i=0; i<requests.size(); i++) {
+				if(requests.get(i) > currentFloor) {
+					stopIndex = i; 
+					break;
+				}
+			}
+			List<Integer> tempLower = requests.subList(0, stopIndex);
+			tempLower.sort((a,b) -> b-a);
+			requests = requests.subList(stopIndex, requests.size());
+			if(direction == 1) {
+				requests.addAll(tempLower);
+			}else {
+				requests.addAll(0, tempLower);
+			}
+//			System.out.println(requests);
 			if(direction == 0) {
 				//If the elevator is idle, set the direction
 				direction = requests.get(0)-currentFloor >= 1 ? 1 : -1;
-				
 			}
 		}
 	}
 	
 	
 	int move() {
-		if(requests.size() == 0) return -1; 
-		requests.sort((a,b) -> a-b);
-		System.out.println(requests);
-		int stopIndex = requests.size();
-		//Finds where to split the array in 2 for sorting
-		for(int i=0; i<requests.size(); i++) {
-			if(requests.get(i) > currentFloor) {
-				stopIndex = i; 
-				break;
-			}
-		}
-		List<Integer> tempLower = requests.subList(0, stopIndex);
-		tempLower.sort((a,b) -> b-a);
-		requests = requests.subList(stopIndex, requests.size());
-		if(direction == 1) {
-			requests.addAll(tempLower);
-		}else {
-			requests.addAll(0, tempLower);
-		}
-		System.out.println(requests);
+//		if(requests.size() == 0) return -1; 
+//		else return requests.get(0);
+		if(direction == 0) return -1;
+		else return currentFloor+direction;
+	}
+	
+	int getNextStop() {
 		return requests.get(0);
 	}
 

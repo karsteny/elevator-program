@@ -69,6 +69,7 @@ class SolutionTest {
 	
 	@Test
 	void test4() {
+		//Next stop logic
 		es = new ElevatorSystem(1,10);
 		es.setElevatorPositionAndDirection(0, 4, 1);
 		
@@ -79,5 +80,25 @@ class SolutionTest {
 		
 		
 		assertEquals(6, es.getElevatorNextStop(0));
+	}
+	
+	@Test
+	void test5() {
+		//Move logic
+		es = new ElevatorSystem(5,5);
+		es.setElevatorPositionAndDirection(0, 1, 0);
+		es.setElevatorPositionAndDirection(1, 2, 1);
+		es.setElevatorPositionAndDirection(2, 5, -1);
+		es.setElevatorPositionAndDirection(3, 4, -1);
+		es.setElevatorPositionAndDirection(4, 3, 1);
+		System.out.println(es);
+		es.moveElevators();
+		System.out.println(es);
+		assertEquals(1, es.getElevatorPosition(0));
+		assertEquals(3, es.getElevatorPosition(1));
+		assertEquals(4, es.getElevatorPosition(2));
+		assertEquals(3, es.getElevatorPosition(3));
+		assertEquals(4, es.getElevatorPosition(4));
+		
 	}
 }
