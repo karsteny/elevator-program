@@ -19,7 +19,7 @@ class ElevatorSystem{
 	ElevatorSystem(int elevatorCount, int numberOfFloors){
 		elevators = new Elevator[elevatorCount];
 		for(int i = 0; i<elevators.length; i++) {
-			elevators[i] = new Elevator();
+			elevators[i] = new Elevator(numberOfFloors);
 		}
 		this.numberOfFloors = numberOfFloors; 
 	}
@@ -59,7 +59,7 @@ class ElevatorSystem{
 	}
 	
 	void setElevatorPositionAndDirection(int elevator, int position, int direction) {
-		if(elevator < 0 || elevator > elevators.length-1 || position < 1 || position > numberOfFloors) {
+		if(elevator < 0 || elevator > elevators.length-1 || position < 0 || position >= numberOfFloors) {
 			throw new IllegalArgumentException();
 		}
 		elevators[elevator].setPositionAndDirection(position, direction);
@@ -68,7 +68,7 @@ class ElevatorSystem{
 	
 	int getElevatorPosition(int elevator) { return elevators[elevator].getPosition(); }
 	int getElevatorDirection(int elevator) { return elevators[elevator].getDirection(); }
-	int getElevatorNextStop(int elevator) { return elevators[elevator].getNextStop(); }
+//	int getElevatorNextStop(int elevator) { return elevators[elevator].getNextStop(); }
 	
 	public String toString() {
 		String r = "Elv#: Flr, Dir";
@@ -83,60 +83,39 @@ class ElevatorSystem{
 
 class Elevator{
 	private int currentFloor;
-	private List<Integer> requests;
+	private int numFloors;
+	private boolean[] requests;
 	private int direction; 
 	
-	Elevator(){
-		currentFloor = 1;
-		requests = new ArrayList<Integer>();
+	Elevator(int numFloors){
+		currentFloor = 0;
+		this.numFloors = numFloors;
+		requests = new boolean[numFloors];
 		direction = 0;
 	}
 	
 	void requestFloor(int floor) {
 		//Don't add the floor if the elevator is already at it
 		//or if the request queue already contains it
-		if(currentFloor != floor && !requests.contains(floor)) {
-			requests.add(floor);
-			//Sorts the array in a "queue" sense
-			//Ex: The queue has floors 1, 2, 5, 7 and the elevator is on floor 3 going up.
-			//The queue will be 5, 7, (change direction) 2, 1
-			requests.sort((a,b) -> a-b);
-//			System.out.println(requests);
-			int stopIndex = requests.size();
-			//Finds where to split the array in 2 for sorting
-			for(int i=0; i<requests.size(); i++) {
-				if(requests.get(i) > currentFloor) {
-					stopIndex = i; 
-					break;
-				}
-			}
-			List<Integer> tempLower = requests.subList(0, stopIndex);
-			tempLower.sort((a,b) -> b-a);
-			requests = requests.subList(stopIndex, requests.size());
-			if(direction == 1) {
-				requests.addAll(tempLower);
-			}else {
-				requests.addAll(0, tempLower);
-			}
-//			System.out.println(requests);
+		if(currentFloor != floor) {
+			requests[floor] = true;
+			
 			if(direction == 0) {
 				//If the elevator is idle, set the direction
-				direction = requests.get(0)-currentFloor >= 1 ? 1 : -1;
+				direction = floor-currentFloor >= 1 ? 1 : -1;
 			}
 		}
 	}
 	
 	
 	int move() {
-//		if(requests.size() == 0) return -1; 
-//		else return requests.get(0);
 		if(direction == 0) return -1;
 		else return currentFloor+direction;
 	}
 	
-	int getNextStop() {
-		return requests.get(0);
-	}
+//	int getNextStop() {
+//		return requests.get(0);
+//	}
 
 	void setPositionAndDirection(int position, int direction) {
 		currentFloor = position;
@@ -170,6 +149,5 @@ class Elevator{
 	
 	public String toString() {
 		return currentFloor + ", " + direction;
-		
 	}
 }
